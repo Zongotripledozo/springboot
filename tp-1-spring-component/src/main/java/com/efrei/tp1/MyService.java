@@ -6,6 +6,6 @@ import org.springframework.stereotype.Component;
 public class MyService implements ActionService {
     @Override
     public String performAction(){
-        return "Hello from MyService";
+        return "je fonctionne bien mon gars";
     }
 }
