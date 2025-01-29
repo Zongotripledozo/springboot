@@ -1,0 +1,3 @@
+library:
+  maxBooksByUser: 5
+  maxLoanDurationInDays: 14
