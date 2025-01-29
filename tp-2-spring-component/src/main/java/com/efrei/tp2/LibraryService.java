@@ -1,14 +1,13 @@
 package com.efrei.tp2;
 
-import java.util.Map;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LibraryService {
     private final BookRepository bookRepository;
-    @Autowired
+
     public LibraryService(BookRepository bookRepository) {
         this.bookRepository = bookRepository;
     }
@@ -20,7 +19,6 @@ public class LibraryService {
     public void rentBook(String isbn, String studentId) {
         Book book = bookRepository.findByIsbn(isbn);
         if (book != null && !book.isRented()) {
-            book.setRented(true);
             book.setRentedBy(studentId);
             bookRepository.save(book);
         }
@@ -29,13 +27,23 @@ public class LibraryService {
     public void returnBook(String isbn) {
         Book book = bookRepository.findByIsbn(isbn);
         if (book != null && book.isRented()) {
-            book.setRented(false);
             book.setRentedBy(null);
             bookRepository.save(book);
         }
     }
 
-    public Map<String, Book> listAvailableBooks() {
-        return bookRepository.findAll();
+    public List<Book> listAvailableBooks() {
+        var listbook = bookRepository.findAll().values();
+        return listbook.stream()
+                .filter(book -> !book.isRented())
+                .toList();
+
+        // List<Book> res = new ArrayList<>();
+        // for (Book book : listbook) {
+        //     if (!book.isRented()) {
+        //         res.add(book);
+        //     }
+        // }
+        // return res;
     }
 }

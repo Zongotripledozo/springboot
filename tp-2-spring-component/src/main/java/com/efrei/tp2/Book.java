@@ -4,7 +4,7 @@ public class Book {
     private String isbn;
     private String title;
     private String author;
-    private boolean isRented;
+
     private String rentedBy;
 
     // Constructors, Getters, and Setters
@@ -12,7 +12,7 @@ public class Book {
         this.isbn = isbn;
         this.title = title;
         this.author = author;
-        this.isRented = false;
+    
         this.rentedBy = null;
     }
 
@@ -41,12 +41,9 @@ public class Book {
     }
 
     public boolean isRented() {
-        return isRented;
+        return rentedBy != null;
     }
 
-    public void setRented(boolean rented) {
-        isRented = rented;
-    }
 
     public String getRentedBy() {
         return rentedBy;

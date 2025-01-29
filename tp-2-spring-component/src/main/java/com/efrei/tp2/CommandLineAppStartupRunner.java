@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 public class CommandLineAppStartupRunner implements CommandLineRunner {
     private final LibraryService libraryService;
 
-    @Autowired
     public CommandLineAppStartupRunner(LibraryService libraryService) {
         this.libraryService = libraryService;
     }
