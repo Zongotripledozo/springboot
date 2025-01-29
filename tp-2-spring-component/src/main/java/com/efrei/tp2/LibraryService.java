@@ -1,15 +1,20 @@
 package com.efrei.tp2;
 
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class LibraryService {
     private final BookRepository bookRepository;
+    private final LibraryProperties libraryProperties;
 
-    public LibraryService(BookRepository bookRepository) {
+    @Autowired
+    public LibraryService(BookRepository bookRepository, LibraryProperties libraryProperties) {
         this.bookRepository = bookRepository;
+        this.libraryProperties = libraryProperties;
     }
 
     public void addBook(Book book) {
@@ -19,31 +24,41 @@ public class LibraryService {
     public void rentBook(String isbn, String studentId) {
         Book book = bookRepository.findByIsbn(isbn);
         if (book != null && !book.isRented()) {
-            book.setRentedBy(studentId);
-            bookRepository.save(book);
+            long rentedBooksCount = bookRepository.findAll().values().stream()
+                    .filter(b -> studentId.equals(b.getRentedBy()))
+                    .count();
+            if (rentedBooksCount < libraryProperties.getMaxBooksByUser()) {
+                book.setRented(true);
+                book.setRentedBy(studentId);
+                bookRepository.save(book);
+            } else {
+                System.out.println("Student has reached the maximum number of rented books.");
+            }
+        } else {
+            System.out.println("Book is already rented or does not exist.");
         }
     }
 
     public void returnBook(String isbn) {
         Book book = bookRepository.findByIsbn(isbn);
         if (book != null && book.isRented()) {
+            book.setRented(false);
             book.setRentedBy(null);
             bookRepository.save(book);
+        } else {
+            System.out.println("Book is not rented or does not exist.");
         }
     }
 
-    public List<Book> listAvailableBooks() {
-        var listbook = bookRepository.findAll().values();
-        return listbook.stream()
+    public Map<String, Book> listAvailableBooks() {
+        return bookRepository.findAll().values().stream()
                 .filter(book -> !book.isRented())
-                .toList();
+                .collect(Collectors.toMap(Book::getIsbn, book -> book));
+    }
 
-        // List<Book> res = new ArrayList<>();
-        // for (Book book : listbook) {
-        //     if (!book.isRented()) {
-        //         res.add(book);
-        //     }
-        // }
-        // return res;
+    public Map<String, Book> listRentedBooks() {
+        return bookRepository.findAll().values().stream()
+                .filter(Book::isRented)
+                .collect(Collectors.toMap(Book::getIsbn, book -> book));
     }
 }
